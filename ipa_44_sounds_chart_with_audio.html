@@ -1,0 +1,293 @@
+
+<style>
+  .ipa-wrap { padding: 1rem 0; font-size: 13px; }
+  .section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 1.25rem 0 0.5rem; }
+  .section-sub { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 0.75rem; }
+  .grid { display: grid; gap: 6px; }
+  .grid-5 { grid-template-columns: repeat(5, 1fr); }
+  .grid-6 { grid-template-columns: repeat(6, 1fr); }
+  .grid-8 { grid-template-columns: repeat(8, 1fr); }
+  .cell {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    padding: 10px 8px 6px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: center;
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    position: relative;
+  }
+  .cell:hover { background: var(--color-background-primary); border-color: var(--color-border-secondary); }
+  .cell.active { border-color: var(--color-border-info); background: var(--color-background-info); }
+  .cell.speaking { border-color: var(--color-border-success); background: var(--color-background-success); }
+  .ipa { font-size: 20px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+  .example { font-size: 11px; color: var(--color-text-secondary); line-height: 1.3; }
+  .cell.active .ipa { color: var(--color-text-info); }
+  .cell.active .example { color: var(--color-text-info); }
+  .cell.speaking .ipa { color: var(--color-text-success); }
+  .speak-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    cursor: pointer;
+    margin-top: 3px;
+    flex-shrink: 0;
+    transition: background 0.1s;
+  }
+  .speak-btn:hover { background: var(--color-background-info); border-color: var(--color-border-info); }
+  .speak-btn svg { width: 10px; height: 10px; fill: var(--color-text-secondary); }
+  .cell.speaking .speak-btn { background: var(--color-background-success); }
+  .cell.speaking .speak-btn svg { fill: var(--color-text-success); }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.5rem 0 0; }
+  .detail-box {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-top: 1rem;
+    display: none;
+  }
+  .detail-box.show { display: block; }
+  .detail-top { display: flex; align-items: center; gap: 14px; }
+  .detail-ipa { font-size: 36px; font-weight: 500; color: var(--color-text-info); }
+  .detail-play {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--color-background-info);
+    border: 0.5px solid var(--color-border-info);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .detail-play:hover { background: var(--color-background-primary); }
+  .detail-play svg { width: 16px; height: 16px; fill: var(--color-text-info); margin-left: 2px; }
+  .detail-words { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .word-chip {
+    font-size: 13px; padding: 4px 12px;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: 20px; cursor: pointer;
+    color: var(--color-text-primary);
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .word-chip:hover { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+  .word-chip.speaking { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+  .detail-label { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  .detail-tip { font-size: 13px; color: var(--color-text-primary); margin-top: 8px; line-height: 1.6; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-right: 4px; }
+  .badge-v { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge-c { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .tag-row { margin-bottom: 6px; }
+  .hint { font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 1rem; }
+  .rate-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 12px; color: var(--color-text-secondary); }
+  .rate-row input { flex: 1; }
+</style>
+
+<div class="ipa-wrap">
+  <p class="hint">Click any cell to see details. Press the <svg style="width:10px;height:10px;display:inline;vertical-align:middle;" viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9" fill="currentColor"/></svg> button or a word chip to hear it spoken.</p>
+
+  <p class="section-title">Vowels — 20 sounds</p>
+  <p class="section-sub">Air flows freely through the mouth. Shape changes with tongue position and lip rounding.</p>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 6px;">Short vowels (7)</p>
+  <div class="grid grid-5" id="short-v"></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:1rem 0 6px;">Long vowels (5)</p>
+  <div class="grid grid-5" id="long-v"></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:1rem 0 6px;">Diphthongs (8)</p>
+  <div class="grid grid-8" id="diph-v"></div>
+
+  <hr class="divider">
+  <p class="section-title">Consonants — 24 sounds</p>
+  <p class="section-sub">Air is obstructed by the lips, teeth, or tongue. Voiced vs. voiceless pairs are common.</p>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 6px;">Plosives (6)</p>
+  <div class="grid grid-6" id="plos-c"></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:1rem 0 6px;">Fricatives (9)</p>
+  <div class="grid grid-6" id="fric-c"></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:1rem 0 6px;">Affricates (2)</p>
+  <div class="grid grid-6" id="affr-c"></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:1rem 0 6px;">Nasals (3)</p>
+  <div class="grid grid-6" id="nasal-c"></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:1rem 0 6px;">Approximants (4)</p>
+  <div class="grid grid-6" id="approx-c"></div>
+
+  <hr class="divider">
+  <div class="detail-box" id="detail-box">
+    <div class="tag-row"><span class="badge" id="d-badge"></span></div>
+    <div class="detail-top">
+      <div>
+        <div class="detail-ipa" id="d-ipa"></div>
+        <div class="detail-label" id="d-label"></div>
+      </div>
+      <button class="detail-play" id="d-play" title="Hear the sound in a word">
+        <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg>
+      </button>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:10px 0 4px;">Tap a word to hear it:</p>
+    <div class="detail-words" id="d-words"></div>
+    <div class="rate-row">
+      <span>Speed:</span>
+      <input type="range" id="rate-slider" min="0.5" max="1.2" step="0.05" value="0.85">
+      <span id="rate-label">0.85×</span>
+    </div>
+    <div class="detail-tip" id="d-tip"></div>
+  </div>
+</div>
+
+<script>
+const data = {
+  "short-v": [
+    { ipa:"/ɪ/", ex:"sit, fish", words:["sit","fish","bit","him","kit"], type:"vowel", label:"Short i", tip:"Tongue high and front, lips slightly spread. Shorter and more relaxed than /iː/. Many learners over-pronounce this as a long /iː/ — the key is to keep it brief and lax." },
+    { ipa:"/e/", ex:"bed, red", words:["bed","red","set","ten","pen"], type:"vowel", label:"Short e", tip:"Tongue mid-front, mouth slightly open. Not as open as /æ/. Think of a flat e. Common error: pronouncing it like /eɪ/ (the name of the letter E)." },
+    { ipa:"/æ/", ex:"cat, hat", words:["cat","hat","bad","man","map"], type:"vowel", label:"Ash", tip:"Mouth opens wide, tongue low and front. This sound doesn't exist in many Asian languages. Exaggerate the jaw drop — it feels unnatural at first but it's correct." },
+    { ipa:"/ɒ/", ex:"hot, dog", words:["hot","dog","lot","top","got"], type:"vowel", label:"Short o (RP)", tip:"Mouth open and rounded, tongue low and back. British RP short O. In American English, often pronounced as /ɑː/ (unrounded)." },
+    { ipa:"/ʌ/", ex:"cup, bus", words:["cup","bus","but","sun","run"], type:"vowel", label:"Wedge / Strut", tip:"Tongue mid-central, mouth half open, lips neutral. Often mispronounced as /a/ or /ɑː/. Think: the sound you make when you're lightly surprised." },
+    { ipa:"/ʊ/", ex:"book, foot", words:["book","foot","look","good","put"], type:"vowel", label:"Short u", tip:"Lips loosely rounded, tongue back and high but relaxed. Don't over-round the lips — it should be a lax, short version of /uː/." },
+    { ipa:"/ə/", ex:"about, sofa", words:["about","sofa","banana","problem","again"], type:"vowel", label:"Schwa", tip:"The most common sound in English! Neutral mouth position, no tension. Only appears in unstressed syllables. This is your most important vowel to master." },
+  ],
+  "long-v": [
+    { ipa:"/iː/", ex:"see, team", words:["see","team","feet","green","sleep"], type:"vowel", label:"Long ee", tip:"Tongue high and front, lips spread into a gentle smile. Hold this sound — the length distinguishes it from /ɪ/. Example pair: ship vs sheep." },
+    { ipa:"/ɑː/", ex:"car, farm", words:["car","farm","far","hard","start"], type:"vowel", label:"Long ah", tip:"Mouth wide open, tongue low and back, lips neutral. Drop your jaw as if a doctor is checking your throat." },
+    { ipa:"/ɔː/", ex:"all, door", words:["all","door","more","floor","court"], type:"vowel", label:"Long aw", tip:"Lips rounded and open, tongue mid-back. British and American pronunciation differ significantly here." },
+    { ipa:"/uː/", ex:"blue, food", words:["blue","food","moon","school","true"], type:"vowel", label:"Long oo", tip:"Lips tightly rounded, tongue high and back. Strong lip rounding — push your lips forward into an O shape." },
+    { ipa:"/ɜː/", ex:"bird, word", words:["bird","word","her","turn","learn"], type:"vowel", label:"Nurse vowel", tip:"Tongue mid-central, lips neutral. No equivalent in most Asian languages. The tongue doesn't touch anything. American English adds an r-colouring." },
+  ],
+  "diph-v": [
+    { ipa:"/eɪ/", ex:"day, rain", words:["day","rain","game","face","late"], type:"vowel", label:"Face", tip:"Start at /e/ (bed), glide upward toward /ɪ/. The tongue rises as you say it. This is the name of the letter A." },
+    { ipa:"/əʊ/", ex:"go, home", words:["go","home","stone","road","known"], type:"vowel", label:"Goat (RP)", tip:"Start with a central /ə/, then round and raise to /ʊ/. British English. American English uses /oʊ/ — starting with a more back /o/." },
+    { ipa:"/aɪ/", ex:"fly, night", words:["fly","night","time","white","mind"], type:"vowel", label:"Price", tip:"Start wide open at /a/, glide up toward /ɪ/. This is the name of the letter I. The mouth closes as you complete the glide." },
+    { ipa:"/aʊ/", ex:"now, town", words:["now","town","sound","found","brown"], type:"vowel", label:"Mouth", tip:"Start open at /a/, round and raise toward /ʊ/. Your lips go from wide to rounded. The rounding at the end is essential." },
+    { ipa:"/ɔɪ/", ex:"boy, coin", words:["boy","coin","noise","point","voice"], type:"vowel", label:"Choice", tip:"Start rounded at /ɔː/, then unround and raise toward /ɪ/. The lips start rounded, then spread." },
+    { ipa:"/ɪə/", ex:"ear, here", words:["ear","here","near","fear","clear"], type:"vowel", label:"Near (RP)", tip:"British English: /ɪ/ glides toward a schwa /ə/. American English usually has /ɪr/ with r-colouring." },
+    { ipa:"/eə/", ex:"air, care", words:["air","care","where","share","bear"], type:"vowel", label:"Square (RP)", tip:"British English: /e/ glides toward /ə/. American English uses /er/. The British version has no R sound at all." },
+    { ipa:"/ʊə/", ex:"pure, tour", words:["pure","tour","cure","lure","sure"], type:"vowel", label:"Cure (RP)", tip:"Becoming rarer in modern British English — many speakers now say /ɔː/ instead. Starts with /ʊ/ and glides toward /ə/." },
+  ],
+  "plos-c": [
+    { ipa:"/p/", ex:"pen, top", words:["pen","top","pig","cup","palm"], type:"consonant", label:"Voiceless bilabial plosive", tip:"Both lips close, build air pressure, then release with a small burst. No voice. /p/ at the start of a stressed syllable has a puff of air (aspiration): pin vs spin." },
+    { ipa:"/b/", ex:"bat, cab", words:["bat","cab","big","ball","web"], type:"consonant", label:"Voiced bilabial plosive", tip:"Same as /p/ but add voice — your throat vibrates. Place your hand on your throat to feel it." },
+    { ipa:"/t/", ex:"top, cat", words:["top","cat","ten","butter","time"], type:"consonant", label:"Voiceless alveolar plosive", tip:"Tongue tip touches the alveolar ridge just behind upper teeth. American English often flaps this sound between vowels (butter sounds like budder)." },
+    { ipa:"/d/", ex:"dog, bad", words:["dog","bad","day","ladder","done"], type:"consonant", label:"Voiced alveolar plosive", tip:"Same as /t/ but voiced. Same tongue position. Feel your throat vibrate. Compare tat vs dad." },
+    { ipa:"/k/", ex:"cat, back", words:["cat","back","key","skill","car"], type:"consonant", label:"Voiceless velar plosive", tip:"Back of the tongue presses against the soft palate at the back of the mouth. /k/ is aspirated at the start of stressed syllables: kin has a puff, skin does not." },
+    { ipa:"/ɡ/", ex:"go, bag", words:["go","bag","girl","big","flag"], type:"consonant", label:"Voiced velar plosive", tip:"Same as /k/ but add voice. Back of the tongue is in the same position. Make sure the tongue actually drops away at the end." },
+  ],
+  "fric-c": [
+    { ipa:"/f/", ex:"fat, leaf", words:["fat","leaf","find","off","phone"], type:"consonant", label:"Voiceless labiodental fricative", tip:"Upper teeth lightly touch the inner lower lip. Blow air through the gap. Light contact is enough — don't bite too hard." },
+    { ipa:"/v/", ex:"van, love", words:["van","love","very","river","live"], type:"consonant", label:"Voiced labiodental fricative", tip:"Identical to /f/ in position, but add vocal vibration. The teeth must touch the lip — it's not /b/." },
+    { ipa:"/θ/", ex:"think, math", words:["think","math","three","tooth","breath"], type:"consonant", label:"Voiceless dental fricative", tip:"Tongue tip between or just behind the upper front teeth. Blow air. The tongue can be visible — this is normal! Don't replace it with /t/ or /s/." },
+    { ipa:"/ð/", ex:"this, other", words:["this","other","the","that","breathe"], type:"consonant", label:"Voiced dental fricative", tip:"Same as /θ/ but add voice. Compare: think vs this. This voiced version appears in common function words: the, this, that, they, them, those." },
+    { ipa:"/s/", ex:"sun, bus", words:["sun","bus","see","snake","glass"], type:"consonant", label:"Voiceless alveolar fricative", tip:"Tongue near the alveolar ridge, air flows through a narrow groove creating a hissing sound. One of the most frequent sounds in English." },
+    { ipa:"/z/", ex:"zoo, jazz", words:["zoo","jazz","zero","buzz","nose"], type:"consonant", label:"Voiced alveolar fricative", tip:"Same position as /s/ but add voice. Very common in English plural endings: cats /s/ vs dogs /z/ vs buses /ɪz/." },
+    { ipa:"/ʃ/", ex:"she, fish", words:["she","fish","shop","rush","nation"], type:"consonant", label:"Voiceless palato-alveolar fricative", tip:"Tongue slightly further back than /s/, lips slightly rounded. Think shh! The airflow is broader than /s/. Compare: see /siː/ vs she /ʃiː/." },
+    { ipa:"/ʒ/", ex:"vision, beige", words:["vision","beige","measure","pleasure","decision"], type:"consonant", label:"Voiced palato-alveolar fricative", tip:"Same position as /ʃ/ but voiced. Rare in English — mostly in French loanwords and -sion endings: measure, pleasure, vision." },
+    { ipa:"/h/", ex:"hat, ahead", words:["hat","ahead","hello","behind","whole"], type:"consonant", label:"Voiceless glottal fricative", tip:"Produced at the glottis. Breathe out with your vocal tract in position for the following vowel. Think of fogging up a mirror." },
+  ],
+  "affr-c": [
+    { ipa:"/tʃ/", ex:"chip, watch", words:["chip","watch","chair","church","cheese"], type:"consonant", label:"Voiceless affricate", tip:"A blend of /t/ and /ʃ/ released together. Tongue starts in the /t/ position, then releases into /ʃ/. Not two sounds — one blended movement." },
+    { ipa:"/dʒ/", ex:"jam, bridge", words:["jam","bridge","jump","judge","giraffe"], type:"consonant", label:"Voiced affricate", tip:"Same as /tʃ/ but fully voiced. The /d/ release blends into /ʒ/. Notice: g in giraffe = /dʒ/, not /ɡ/. Spelling doesn't predict the sound." },
+  ],
+  "nasal-c": [
+    { ipa:"/m/", ex:"man, ham", words:["man","ham","moon","swim","dream"], type:"consonant", label:"Voiced bilabial nasal", tip:"Lips together, voice on, air flows through the nose. Hmm! Feel the vibration in your lips." },
+    { ipa:"/n/", ex:"net, run", words:["net","run","night","funny","ten"], type:"consonant", label:"Voiced alveolar nasal", tip:"Tongue tip on the alveolar ridge, air goes through the nose. Like humming with your tongue up." },
+    { ipa:"/ŋ/", ex:"sing, ring", words:["sing","ring","king","song","strong"], type:"consonant", label:"Voiced velar nasal", tip:"Back of tongue against soft palate, air through the nose. NEVER followed by /ɡ/ in standard English despite the ng spelling. Sing ends with /ŋ/, not /ŋɡ/." },
+  ],
+  "approx-c": [
+    { ipa:"/l/", ex:"lip, feel", words:["lip","feel","long","hello","cold"], type:"consonant", label:"Voiced alveolar lateral", tip:"Tongue tip on the alveolar ridge, air flows around the sides. English has clear /l/ before vowels (lip) and dark /ɫ/ before consonants or at end (feel)." },
+    { ipa:"/r/", ex:"red, very", words:["red","very","right","sorry","three"], type:"consonant", label:"Voiced approximant", tip:"The English /r/ is NOT a trill. The tongue curves back slightly without touching anything. Lips may be slightly rounded. RP British drops /r/ after vowels." },
+    { ipa:"/w/", ex:"wet, away", words:["wet","away","world","sweet","twelve"], type:"consonant", label:"Voiced labio-velar approximant", tip:"Lips tightly rounded as for /uː/, then quickly relax. Like quickly saying /uː/ then moving to the next sound." },
+    { ipa:"/j/", ex:"yes, you", words:["yes","you","year","yellow","few"], type:"consonant", label:"Voiced palatal approximant", tip:"Tongue high and front like /iː/, then quickly moves to the following vowel. Like quickly saying /iː/ then moving on." },
+  ],
+};
+
+let activeCell = null;
+let currentItem = null;
+let speechRate = 0.85;
+
+function speak(text, btn) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB';
+  utt.rate = speechRate;
+  utt.pitch = 1;
+  if (btn) {
+    btn.classList.add('speaking');
+    utt.onend = () => btn.classList.remove('speaking');
+    utt.onerror = () => btn.classList.remove('speaking');
+  }
+  window.speechSynthesis.speak(utt);
+}
+
+function showDetail(cell, item) {
+  if (activeCell && activeCell !== cell) activeCell.classList.remove('active');
+  cell.classList.toggle('active');
+  activeCell = cell.classList.contains('active') ? cell : null;
+  currentItem = activeCell ? item : null;
+
+  const box = document.getElementById('detail-box');
+  if (!activeCell) { box.classList.remove('show'); return; }
+
+  document.getElementById('d-ipa').textContent = item.ipa;
+  document.getElementById('d-label').textContent = item.label;
+  document.getElementById('d-tip').textContent = item.tip;
+  const badge = document.getElementById('d-badge');
+  badge.textContent = item.type === 'vowel' ? 'Vowel' : 'Consonant';
+  badge.className = 'badge ' + (item.type === 'vowel' ? 'badge-v' : 'badge-c');
+
+  const wordsDiv = document.getElementById('d-words');
+  wordsDiv.innerHTML = '';
+  item.words.forEach(w => {
+    const chip = document.createElement('button');
+    chip.className = 'word-chip';
+    chip.textContent = w;
+    chip.onclick = (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('speaking'));
+      chip.classList.add('speaking');
+      speak(w, chip);
+    };
+    wordsDiv.appendChild(chip);
+  });
+
+  box.classList.add('show');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function render(id, items) {
+  const grid = document.getElementById(id);
+  items.forEach(item => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.innerHTML = `
+      <span class="ipa">${item.ipa}</span>
+      <span class="example">${item.ex}</span>
+      <button class="speak-btn" title="Hear it">
+        <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg>
+      </button>`;
+    const btn = cell.querySelector('.speak-btn');
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      cell.classList.add('speaking');
+      speak(item.words[0], cell);
+      setTimeout(() => cell.classList.remove('speaking'), 1200);
+    };
+    cell.onclick = () => showDetail(cell, item);
+    grid.appendChild(cell);
+  });
+}
+
+document.getElementById('d-play').onclick = () => {
+  if (currentItem) speak(currentItem.words[0], document.getElementById('d-play'));
+};
+
+document.getElementById('rate-slider').oninput = function() {
+  speechRate = parseFloat(this.value);
+  document.getElementById('rate-label').textContent = speechRate.toFixed(2) + '×';
+};
+
+Object.entries(data).forEach(([id, items]) => render(id, items));
+</script>
